@@ -1,8 +1,4 @@
 bs4
 pandas
 numpy
-time
-random
 aiohttp
-re
-math
