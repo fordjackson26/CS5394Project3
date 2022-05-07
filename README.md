@@ -33,7 +33,7 @@
  'bootstrap': False}</code> which gave the lowest rmse. I use the previously collected data for fit the model, but I put functions in the app to update the data when necesary, but it takes a few minutes so i dont have it reoccuring</p>
  <h4>Using the app</h4>
  <p style="font-family:courier;">For my MKW players simply use the command <code>?bt rt</code> in the lounge server and copy the results into the text are</p>
- <p style="font-family:courier;">For those who dont play lounge but want to see it work I will attachs some sample data to try.</p>
+ <p style="font-family:courier;">For those who dont play lounge but want to see it work I will attachs some sample data to try. Scroll left for my data.</p>
  <table>
 <tr>
 <th>Random Data</th>
@@ -121,6 +121,9 @@
 </td>
 </tr>
 </table>
+
+<h4>What I learned</h4>
+<p style = "font-family:courier;"> Most of what I learned was realted to web scraping. I almost gave up on this project when I learned there was no public API for the data, but I am glad I didn't. It was fun to try to extract all the data from the HTML table and format it into a pandas dataframe before I realized pandas did it for you. I also learned some more specifics of each model I tried in order to get the best results possible." 
 
 
 
