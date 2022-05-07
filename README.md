@@ -42,7 +42,7 @@
 <tr>
 <td>
   
-```json
+```
 + Track Name                   Avg Pts    Avg Place    Best Time    # Plays
 ---------------------------  ---------  -----------  -----------  ---------
 1.  DS Yoshi Falls               11.00         2.75         1:09          4
@@ -82,7 +82,7 @@
 </td>
 <td>
 
-```json
+```
 + Track Name                   Avg Pts    Avg Place    Best Time    # Plays
 ---------------------------  ---------  -----------  -----------  ---------
 1.  Daisy Circuit                12.00         2.00         1:43          1
