@@ -8,10 +8,11 @@ import random
 import aiohttp
 import seaborn as sns
 import re
+import math
 import streamlit as st
 
 tracklist = ['DS Delfino Square', 'DS Desert Hills', 'DS Peach Gardens', 'DS Yoshi Falls', 'GBA Bowser Castle 3', 'GBA Shy Guy Beach', 'GCN DK Mountain', 'GCN Mario Circuit', 'GCN Peach Beach', 'GCN Waluigi Stadium', "N64 Bowser's Castle", "N64 DK's Jungle Parkway", 'N64 Mario Raceway', 'N64 Sherbet Land', 'SNES Ghost Valley 2', 'SNES Mario Circuit 3', "Wii Bowser's Castle", 'Wii Coconut Mall', 'Wii DK Summit', 'Wii Daisy Circuit', 'Wii Dry Dry Ruins', 'Wii Grumble Volcano', 'Wii Koopa Cape', 'Wii Luigi Circuit', 'Wii Maple Treeway', 'Wii Mario Circuit', 'Wii Moo Moo Meadows', 'Wii Moonview Highway', 'Wii Mushroom Gorge', 'Wii Rainbow Road', "Wii Toad's Factory", "Wii Wario's Gold Mine"]
-
+prefixes = ['GCN', 'DS', 'GBA', 'N64','SNES']
 tracks = '''+ Track Name                   Avg Pts    Avg Place    Best Time    # Plays
 ---------------------------  ---------  -----------  -----------  ---------
 1.  GCN Waluigi Stadium          11.25         2.75         2:11          4
@@ -123,6 +124,66 @@ def typeColumns(combodata):
     
     return combodata
 
+def parseInput(input):
+    lines = input.split('\n')
+    lines = lines[2:]
+    tracklist = []
+    for line in lines:
+        sp = line.split(' ')
+        sp = list(filter(bool, sp))
+        sp = sp[1:]
+        if sp[0] not in prefixes:
+            sp.insert(0, 'Wii')
+    
+        tracklist.append(sp)
+    for track in tracklist:
+        track[0 : -4] = [" ".join(track[0: -4])]
+    # print(track)
+    return tracklist
+
+def formatData(data,allTracks):
+    trackData = pd.DataFrame(data, columns=['Track', 'Avg Pts', 'AP', 'AT', 'R'])
+    trackData = trackData.reindex(columns=['Track','Avg Pts', 'AT', 'AP', 'R'])
+    trackData = trackData.drop('Avg Pts', axis=1)
+    trackData['Engine'] = '150cc'
+    missing = [x for x in allTracks if x not in trackData['Track'].tolist()]
+    for t in missing:
+        trackData.loc[len(trackData.index)] = [t,  '3:00','0', '0', '150cc']
+    return trackData
+
+def pivotData(df):
+    melted = df.pivot(index = 'Engine', columns='Track')
+    melted.columns = [' '.join(col).strip() for col in melted.columns.values]
+    return melted
+
+def typeInput(combodata):
+    ATcols = combodata.columns[0:32]
+    APcols = combodata.columns[32:64]
+    Rcols = combodata.columns[64:96]
+    for r in Rcols:
+        
+        combodata[r] = combodata[r].astype(int)
+    for p in APcols:
+        # combodata[p] = combodata[p].replace(np.nan, '13th')
+        # combodata[p] = combodata[p].apply(lambda x: re.sub("[^0-9]", "", x)) 
+        combodata[p] = combodata[p].apply(lambda x: math.trunc(float(x)))
+        combodata[p] = combodata[p].astype(int)
+    for T in ATcols:
+        combodata[T] = combodata[T].apply(lambda x: getTime(x) if x != np.nan else x)
+        combodata[T] = combodata[T].astype(float)
+    return combodata
+
+
+
+def properInput(input):
+    t1 = parseInput(input)
+    t2 = formatData(t1, tracklist)
+    t2.rename(columns = {'BT':'AT'}, inplace=True)
+    t3 = pivotData(t2)
+    t4 = typeInput(t3)
+    return t2, t4
+
+
 
 # playerdata = await getPlayerData()
 # dfs = []
@@ -141,10 +202,30 @@ def typeColumns(combodata):
 # combodata = pd.merge(playerdata,trackdata, left_on='player_id', right_on='player_id')
 
 # combodata = typeColumns(combodata)
+best_params = {'n_estimators': 1600,
+ 'min_samples_split': 5,
+ 'min_samples_leaf': 1,
+ 'max_features': 'sqrt',
+ 'max_depth': 70,
+ 'bootstrap': False}
+from sklearn.ensemble import RandomForestRegressor
+prediction_cols = ['AT DS Delfino Square', 'AT DS Desert Hills', 'AT DS Peach Gardens', 'AT DS Yoshi Falls', 'AT GBA Bowser Castle 3', 'AT GBA Shy Guy Beach', 'AT GCN DK Mountain', 'AT GCN Mario Circuit', 'AT GCN Peach Beach', 'AT GCN Waluigi Stadium', "AT N64 Bowser's Castle", "AT N64 DK's Jungle Parkway", 'AT N64 Mario Raceway', 'AT N64 Sherbet Land', 'AT SNES Ghost Valley 2', 'AT SNES Mario Circuit 3', "AT Wii Bowser's Castle", 'AT Wii Coconut Mall', 'AT Wii DK Summit', 'AT Wii Daisy Circuit', 'AT Wii Dry Dry Ruins', 'AT Wii Grumble Volcano', 'AT Wii Koopa Cape', 'AT Wii Luigi Circuit', 'AT Wii Maple Treeway', 'AT Wii Mario Circuit', 'AT Wii Moo Moo Meadows', 'AT Wii Moonview Highway', 'AT Wii Mushroom Gorge', 'AT Wii Rainbow Road', "AT Wii Toad's Factory", "AT Wii Wario's Gold Mine", 'AP DS Delfino Square', 'AP DS Desert Hills', 'AP DS Peach Gardens', 'AP DS Yoshi Falls', 'AP GBA Bowser Castle 3', 'AP GBA Shy Guy Beach', 'AP GCN DK Mountain', 'AP GCN Mario Circuit', 'AP GCN Peach Beach', 'AP GCN Waluigi Stadium', "AP N64 Bowser's Castle", "AP N64 DK's Jungle Parkway", 'AP N64 Mario Raceway', 'AP N64 Sherbet Land', 'AP SNES Ghost Valley 2', 'AP SNES Mario Circuit 3', "AP Wii Bowser's Castle", 'AP Wii Coconut Mall', 'AP Wii DK Summit', 'AP Wii Daisy Circuit', 'AP Wii Dry Dry Ruins', 'AP Wii Grumble Volcano', 'AP Wii Koopa Cape', 'AP Wii Luigi Circuit', 'AP Wii Maple Treeway', 'AP Wii Mario Circuit', 'AP Wii Moo Moo Meadows', 'AP Wii Moonview Highway', 'AP Wii Mushroom Gorge', 'AP Wii Rainbow Road', "AP Wii Toad's Factory", "AP Wii Wario's Gold Mine", 'R DS Delfino Square', 'R DS Desert Hills', 'R DS Peach Gardens', 'R DS Yoshi Falls', 'R GBA Bowser Castle 3', 'R GBA Shy Guy Beach', 'R GCN DK Mountain', 'R GCN Mario Circuit', 'R GCN Peach Beach', 'R GCN Waluigi Stadium', "R N64 Bowser's Castle", "R N64 DK's Jungle Parkway", 'R N64 Mario Raceway', 'R N64 Sherbet Land', 'R SNES Ghost Valley 2', 'R SNES Mario Circuit 3', "R Wii Bowser's Castle", 'R Wii Coconut Mall', 'R Wii DK Summit', 'R Wii Daisy Circuit', 'R Wii Dry Dry Ruins', 'R Wii Grumble Volcano', 'R Wii Koopa Cape', 'R Wii Luigi Circuit', 'R Wii Maple Treeway', 'R Wii Mario Circuit', 'R Wii Moo Moo Meadows', 'R Wii Moonview Highway', 'R Wii Mushroom Gorge', 'R Wii Rainbow Road', "R Wii Toad's Factory", "R Wii Wario's Gold Mine"]
 
 
 combodata = pd.read_csv('datasets/loungedata-formated.csv')
-st.set_page_config(page_title="MMR predictor",layout="wide")
+final_est = RandomForestRegressor(**best_params)
+final_est.fit(combodata[prediction_cols], combodata['current_mmr'])
+
+st.set_page_config(page_title="MMR predictor", layout="wide")
+max_width_str = f"max-width: 3000px;"
+st.markdown(
+	f"""
+		<style>
+			.reportview-container .main .block-container {{{max_width_str}}}
+		</style>    
+	""",
+	unsafe_allow_html=True
+)
 st.markdown("<h1 style='text-align: center; color: red;'>Mario Kart Wii Lounge MMR Predictor</h1>", unsafe_allow_html=True)
 
 st.markdown("<h3 style='text-align: center; color: white;'>This is a tool that predicts the MMR of Mario Kart Wii players based on their track times.</h3>", unsafe_allow_html=True)
@@ -153,3 +234,8 @@ st.markdown("<p style='text-align: center; color: white;'>It uses data from the 
 st.markdown("<p style='text-align: center; color: white;'>To use this tool run the command <code>?bt rt</code> in the lounge discord and copy the results.</p>", unsafe_allow_html=True)
 # st.markdown("<textarea id='trackinpu' name='trackin' rows="34" cols="50">Insert Track Data Here</textarea>", unsafe_allow_html=True)
 input = st.text_area('Input your track data here:', tracks, height=330) 
+userData, predictorInput = properInput(input)
+userData = userData.drop(['Engine'], axis=1)
+st.write(userData.to_html(), unsafe_allow_html=True)
+st.write(final_est.predict(predictorInput))
+
