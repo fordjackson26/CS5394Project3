@@ -1,0 +1,9 @@
+bs4
+pandas
+numpy
+time
+random
+aiohttp
+seaborn as sns
+re
+math
