@@ -1,5 +1,5 @@
-<title style="text-align:center;">CS5394Project3</title>
-<img src="logo.png"
+<h1 style="text-align:center;font-family:Gill Sans, sans-serif">CS5394 Project3</h1>
+<img src="images/logo.png"
      alt="Markdown Monster icon"
      style="float: center; margin-right: 10px;" />
 <h2 style="color:dodgerblue;">Mario Kart Wii Mogi Lounge MMR predictor </h1>
@@ -13,6 +13,16 @@
 
 
 <p>These elements were chosen because they are quickly accesible for all players using the command <br><code style="font-size330%;">?besttracks rt</code> in the main community discord server.</p>
+
+<h4>Data Retrieval</h4>
+<p style="font-family:courier;">The data for all the races is held in a private  data base, and while I am in contact with the administrators to potentially have access to this data in the future I was not able to for this project.</p>
+<p style="font-family:courier;">To circumvent this I used the lounge website as my datasource and used bs4 to web scrape from each indiviuduals page.</p>
+<p style="font-family:courier;">Here is my page that I webscraped
+<img src="images/data.png"
+     alt="Markdown Monster icon"
+     style="float: center; margin-right: 10px;" />this conatins my data and is updated every hour.</p>
+
+
 
 
 
